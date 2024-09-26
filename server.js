@@ -32,9 +32,9 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
 
-//retrieve all patients
-app.get('', (req, res) => {
-    const getPatients = "SELECT first_name, last_name FROM patients"
+//Question 1. Retrieve all patients
+app.get('/patients', (req, res) => {
+    const getPatients = "SELECT patient_id, first_name, last_name, date_of_birth FROM patients";
     db.query(getPatients, (err, data) => {
         //If I have an error
         if (err) {
@@ -42,12 +42,57 @@ app.get('', (req, res) => {
         }
 
         res.status(200).render('data', { data })  //view structured data (ejs)
-        // res.status(200).send(data)  // view data in raw form
+        // res.status(200).send(data)  // view data in JSON format
+    })
+})
+
+//Question 2. Retrieve all providers
+app.get('/providers', (req, res) => {
+    const getProviders = "SELECT first_name, last_name, provider_specialty FROM providers";
+    db.query(getProviders, (err, data) => {
+        //If I have an error
+        if (err) {
+            return res.status(400).send("Failed to get providers")
+        }
+
+        res.status(200).render('data', { data })  //view structured data (ejs)
+        // res.status(200).send(data)  // view data in JSON format
+    })
+})
+
+//Question 3. Filter patients by first name
+app.get('/patients-filter', (req, res) => {
+    const firstName = req.query.first_name;
+    const getPatientsByName = "SELECT patient_id, first_name, last_name, date_of_birth FROM patients WHERE first_name = ?";
+    db.query(getPatientsByName, [firstName], (err, data) => {
+        //If I have an error
+        if (err) {
+            return res.status(400).send("Failed to get patients by first name")
+        }
+
+        res.status(200).render('data', { data })  //view structured data (ejs)
+        // res.status(200).send(data)  // view data in JSON format
+    })
+});
+
+//Question 4. Retrieve providers by specialty
+app.get('/providers-specialty', (req, res) => {
+    const specialty = req.query.provider_specialty;
+    const getProvidersBySpecialty = "SELECT first_name, last_name, provider_specialty FROM providers WHERE provider_specialty = ?";
+    db.query(getProvidersBySpecialty, [specialty], (err, data) => {
+        //If I have an error
+        if (err) {
+            return res.status(400).send("Failed to get providers by specialty")
+        }
+
+        res.status(200).render('data', { data })  //view structured data (ejs)
+        // res.status(200).send(data)  // view data in JSON format
     })
 })
 
 
 //start and listen to the server
+const PORT=3300
 app.listen(3300, () => {
     console.log(`Server is Running on Port 3300...`)
 })
